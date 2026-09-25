@@ -22,4 +22,4 @@ deploy-config environment:
 
 # Apply D1 migrations and deploy the checked Worker to staging or production.
 deploy environment: check (deploy-config environment)
-    pnpm --filter origin89-cloud deploy:remote
+    pnpm --filter origin89-cloud deploy:remote {{environment}}
