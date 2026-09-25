@@ -1,9 +1,9 @@
 import { SignJWT } from "jose";
 import { describe, expect, it } from "vitest";
 import { bearerToken, tokenVerifier } from "../src/auth.ts";
-import { audience, call, issuer, jwks, newSubject, services, token } from "./helpers.ts";
+import { call, clientId, issuer, jwks, newSubject, services, token } from "./helpers.ts";
 
-const verifier = tokenVerifier(jwks, { issuer, audience });
+const verifier = tokenVerifier(jwks, { issuer, clientId });
 
 describe("access token verification", () => {
   it("accepts a WorkOS token and keeps issuer, subject and session", async () => {
@@ -20,13 +20,15 @@ describe("access token verification", () => {
   });
 
   it("rejects a token from another issuer", async () => {
-    const other = tokenVerifier(jwks, { issuer: "https://api.workos.com/", audience });
+    const other = tokenVerifier(jwks, { issuer: "https://api.workos.com/", clientId });
     expect(await other.verify(await token(newSubject()))).toEqual({ ok: false, reason: "invalid" });
   });
 
-  it("rejects a token for another audience, such as the other environment", async () => {
-    const other = tokenVerifier(jwks, { issuer, audience: "https://cloud.origin89.com" });
+  it("rejects a token issued to another client, such as the other environment's app", async () => {
+    const other = tokenVerifier(jwks, { issuer, clientId: "client_01OTHEROTHEROTHEROTHEROTHE" });
     expect(await other.verify(await token(newSubject()))).toEqual({ ok: false, reason: "invalid" });
+    const noClient = await token(newSubject(), { claims: { client_id: undefined } });
+    expect(await verifier.verify(noClient)).toEqual({ ok: false, reason: "invalid" });
   });
 
   it("rejects a token signed with an unknown key", async () => {
@@ -39,10 +41,9 @@ describe("access token verification", () => {
   });
 
   it("rejects a symmetric token and one without a session", async () => {
-    const hs = await new SignJWT({ sid: "s" })
+    const hs = await new SignJWT({ sid: "s", client_id: clientId })
       .setProtectedHeader({ alg: "HS256", kid: "k1" })
       .setIssuer(issuer)
-      .setAudience(audience)
       .setSubject(newSubject())
       .setIssuedAt()
       .setExpirationTime("5m")
@@ -62,7 +63,7 @@ describe("access token verification", () => {
       async () => {
         throw new TypeError("fetch failed");
       },
-      { issuer, audience },
+      { issuer, clientId },
     );
     expect(await offline.verify(await token(newSubject()))).toEqual({
       ok: false,
@@ -106,7 +107,7 @@ describe("authenticated routes", () => {
         async () => {
           throw new TypeError("fetch failed");
         },
-        { issuer, audience },
+        { issuer, clientId },
       ),
     };
     const response = await call(svc, "GET", "/v1/sites", { token: await token(newSubject()) });

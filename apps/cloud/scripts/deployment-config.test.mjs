@@ -10,8 +10,7 @@ const env = (environment, overrides = {}) => ({
   CLOUD_DATABASE_NAME: `origin89-cloud-${environment}`,
   CLOUD_DATABASE_ID: "01234567-89ab-cdef-0123-456789abcdef",
   WORKOS_CLIENT_ID: clientIds[environment],
-  WORKOS_ISSUER: "https://auth.origin89.com",
-  WORKOS_AUDIENCE: "https://cloud.origin89.com",
+  WORKOS_ISSUER: "https://api.workos.com",
   ...overrides,
 });
 

@@ -1,12 +1,11 @@
 # Deploy the cloud Worker
 
-Staging and production are separate Workers, D1 databases and WorkOS environments. A Worker accepts access tokens only from its own environment's WorkOS client: the JWKS is fetched per client ID, and the issuer and audience are checked on every token.
+Staging and production are separate Workers, D1 databases and WorkOS environments. A Worker accepts access tokens only from its own environment's WorkOS client: the JWKS is fetched per client ID, and every token's issuer and `client_id` claim are checked. AuthKit session tokens carry no `aud`, so no JWT template is needed.
 
 ## WorkOS, once per environment
 
-1. Add a JWT template to the environment that sets the audience, for example `{ "aud": "https://cloud.origin89.com" }` in production. AuthKit session tokens carry no `aud` without it, and the Worker rejects tokens with no audience or the wrong one.
-2. Sign in once and decode the access token. Copy its `iss` exactly, including any trailing slash, into `WORKOS_ISSUER`. It changes if the environment moves to a custom AuthKit domain.
-3. Keep the API key in the team vault and in the `WORKOS_API_KEY` repository secret. Never in the app or Git.
+1. `WORKOS_ISSUER` is `https://api.workos.com`, with no trailing slash, as read from a production token on 2026-09-25. A custom AuthKit domain changes it: decode a new token and update the variable before switching.
+2. Keep the API key in the team vault and in the `WORKOS_API_KEY` repository secret. Never in the app or Git.
 
 ## Cloudflare
 
@@ -26,8 +25,8 @@ The config refuses the other environment's client ID. Worker and database names 
 
 The `Checks` workflow deploys production on every push to `main` after its checks pass, and on a manual run on `main`. PRs only run checks. It uses the same `deploy:config` and `deploy:remote` scripts as `just deploy production`, and uploads `WORKOS_API_KEY` with each version.
 
-GitHub holds the organization secret `CLOUDFLARE_API_TOKEN` (granted to this repository), the repository secret `WORKOS_API_KEY`, and repository variables `CLOUDFLARE_ACCOUNT_ID`, `CLOUD_WORKER_NAME`, `CLOUD_HOSTNAME`, `CLOUD_DATABASE_NAME`, `CLOUD_DATABASE_ID`, `WORKOS_CLIENT_ID`, `WORKOS_ISSUER` and `WORKOS_AUDIENCE`. Without GitHub deployment environments, which this private repository cannot use on the current plan, these secrets are available to workflows on every branch, not only `main`. Move them to a `cloud-production` environment restricted to `main` once environments are available.
+GitHub holds the organization secret `CLOUDFLARE_API_TOKEN` (granted to this repository), the repository secret `WORKOS_API_KEY`, and repository variables `CLOUDFLARE_ACCOUNT_ID`, `CLOUD_WORKER_NAME`, `CLOUD_HOSTNAME`, `CLOUD_DATABASE_NAME`, `CLOUD_DATABASE_ID`, `WORKOS_CLIENT_ID` and `WORKOS_ISSUER`. Without GitHub deployment environments, which this private repository cannot use on the current plan, these secrets are available to workflows on every branch, not only `main`. Move them to a `cloud-production` environment restricted to `main` once environments are available.
 
 ## Local development
 
-Copy `.dev.vars.example` to `.dev.vars`, fill in the staging issuer, audience and API key, apply migrations to the local D1 with `pnpm --filter origin89-cloud exec wrangler d1 migrations apply origin89-cloud --local`, then run `just dev`.
+Copy `.dev.vars.example` to `.dev.vars`, fill in the staging API key, apply migrations to the local D1 with `pnpm --filter origin89-cloud exec wrangler d1 migrations apply origin89-cloud --local`, then run `just dev`.

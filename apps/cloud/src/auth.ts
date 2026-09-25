@@ -33,7 +33,7 @@ const maxTokenLength = 8_192;
 
 export function tokenVerifier(
   keys: JWTVerifyGetKey,
-  config: Pick<WorkosConfig, "issuer" | "audience">,
+  config: Pick<WorkosConfig, "issuer" | "clientId">,
   now: () => Date = () => new Date(),
 ): TokenVerifier {
   return {
@@ -43,11 +43,18 @@ export function tokenVerifier(
         const { payload } = await jwtVerify(token, keys, {
           algorithms: ["RS256"],
           issuer: config.issuer,
-          audience: config.audience,
-          requiredClaims: ["sub", "sid", "exp", "iat"],
+          requiredClaims: ["sub", "sid", "exp", "iat", "client_id"],
           currentDate: now(),
         });
-        if (typeof payload.sid !== "string" || !payload.sid || !payload.sub || !payload.iss)
+        // AuthKit session tokens carry no `aud`; `client_id` names the application they were
+        // issued to, so a token for any other client, in this environment or another, fails.
+        if (
+          payload.client_id !== config.clientId ||
+          typeof payload.sid !== "string" ||
+          !payload.sid ||
+          !payload.sub ||
+          !payload.iss
+        )
           return { ok: false, reason: "invalid" };
         return {
           ok: true,

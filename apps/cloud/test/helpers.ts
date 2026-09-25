@@ -6,7 +6,7 @@ import { Store } from "../src/store.ts";
 import type { DeleteOutcome, SessionCheck, Workos } from "../src/workos.ts";
 
 export const issuer = "https://auth.test.origin89.com";
-export const audience = "https://cloud.test.origin89.com";
+export const clientId = "client_01TESTTESTTESTTESTTESTTEST";
 
 const signing = await generateKeyPair("RS256");
 const stranger = await generateKeyPair("RS256");
@@ -25,10 +25,9 @@ export interface TokenOptions {
 
 export async function token(subject: string, options: TokenOptions = {}): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
-  return new SignJWT({ sid: `session_${subject}`, ...options.claims })
+  return new SignJWT({ sid: `session_${subject}`, client_id: clientId, ...options.claims })
     .setProtectedHeader({ alg: "RS256", kid: options.kid ?? "k1" })
     .setIssuer(issuer)
-    .setAudience(audience)
     .setSubject(subject)
     .setIssuedAt(now - 10)
     .setExpirationTime(now + (options.expiresIn ?? 300))
@@ -56,7 +55,7 @@ export class FakeWorkos implements Workos {
 export function services(workos = new FakeWorkos()): Services & { workos: FakeWorkos } {
   return {
     store: new Store(env.DB),
-    verifier: tokenVerifier(jwks, { issuer, audience }),
+    verifier: tokenVerifier(jwks, { issuer, clientId }),
     workos,
   };
 }

@@ -46,7 +46,6 @@ jobs:
       CLOUD_DATABASE_ID: ${{ vars.CLOUD_DATABASE_ID }}
       WORKOS_CLIENT_ID: ${{ vars.WORKOS_CLIENT_ID }}
       WORKOS_ISSUER: ${{ vars.WORKOS_ISSUER }}
-      WORKOS_AUDIENCE: ${{ vars.WORKOS_AUDIENCE }}
     steps:
       - name: Require the current main commit
         env:

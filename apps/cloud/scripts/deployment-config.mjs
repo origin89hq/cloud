@@ -20,7 +20,6 @@ const patterns = {
   CLOUD_DATABASE_ID: /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/,
   WORKOS_CLIENT_ID: /^client_[0-9A-Z]{26}$/,
   WORKOS_ISSUER: /^https:\/\/\S+$/,
-  WORKOS_AUDIENCE: /^\S+$/,
 };
 
 export function cloudConfig(base, environment, env) {
@@ -58,7 +57,6 @@ export function cloudConfig(base, environment, env) {
     vars: {
       WORKOS_CLIENT_ID: value.WORKOS_CLIENT_ID,
       WORKOS_ISSUER: value.WORKOS_ISSUER,
-      WORKOS_AUDIENCE: value.WORKOS_AUDIENCE,
     },
     d1_databases: [
       {
