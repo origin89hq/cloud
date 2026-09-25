@@ -6,7 +6,7 @@ const base = { $schema: "x", name: "origin89-cloud", main: "src/index.ts", worke
 const env = (environment, overrides = {}) => ({
   CLOUDFLARE_ACCOUNT_ID: "0123456789abcdef0123456789abcdef",
   CLOUD_WORKER_NAME: `origin89-cloud-${environment}`,
-  CLOUD_HOSTNAME: "cloud.origin89.com",
+  CLOUD_HOSTNAME: environment === "staging" ? "cloud.staging.origin89.com" : "cloud.origin89.com",
   CLOUD_DATABASE_NAME: `origin89-cloud-${environment}`,
   CLOUD_DATABASE_ID: "01234567-89ab-cdef-0123-456789abcdef",
   WORKOS_CLIENT_ID: clientIds[environment],
@@ -52,4 +52,19 @@ test("refuses missing or malformed values", () => {
 
 test("refuses an unknown environment", () => {
   assert.throws(() => cloudConfig(base, "preview", env("staging")), /Environment must be/);
+});
+
+test("refuses another environment's Worker, database or hostname", () => {
+  for (const overrides of [
+    { CLOUD_WORKER_NAME: "origin89-cloud-staging" },
+    { CLOUD_DATABASE_NAME: "origin89-cloud-staging" },
+    { CLOUD_HOSTNAME: "cloud.staging.origin89.com" },
+  ]) {
+    assert.throws(() => cloudConfig(base, "production", env("production", overrides)), /CLOUD_/);
+  }
+  assert.throws(
+    () => cloudConfig(base, "staging", env("staging", { CLOUD_HOSTNAME: "cloud.origin89.com" })),
+    /staging CLOUD_HOSTNAME/,
+  );
+  assert.equal(cloudConfig(base, "staging", env("staging")).name, "origin89-cloud-staging");
 });

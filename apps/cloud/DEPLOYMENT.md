@@ -12,14 +12,15 @@ Staging and production are separate Workers, D1 databases and WorkOS environment
 
 Copy `.env.staging.example` or `.env.production.example` in this directory to `.env.staging` or `.env.production` and fill in the account, Worker name, hostname and existing D1 database. These values are public; the files are ignored by Git. Create the database first with `pnpm exec wrangler d1 create <name>` if it does not exist. These commands do not provision anything else.
 
-From the repository root:
+From the repository root, the first time:
 
 ```sh
-just deploy staging
+just deploy-config staging
 pnpm --filter origin89-cloud exec wrangler secret put WORKOS_API_KEY --config wrangler.deploy.json
+just deploy staging
 ```
 
-`just deploy` runs the checks, writes `wrangler.deploy.json` for that environment, applies D1 migrations and deploys. It refuses a client ID that belongs to the other environment. Set the secret after the first deployment and again only to rotate it; deployments keep it. Until it is set, the Worker answers every request with `500` rather than accepting tokens.
+Setting the secret before the first deployment creates the Worker. `just deploy` runs the checks, writes `wrangler.deploy.json` for that environment, confirms that the database ID belongs to the named database and that `WORKOS_API_KEY` is set, then applies D1 migrations and deploys. It changes nothing remotely if either check fails. The config refuses the other environment's client ID, and Worker and database names must end with `-staging` or `-production`; only the staging hostname may contain `staging`. Deployments keep the secret; set it again only to rotate it.
 
 Deployment from GitHub Actions waits for deployment environments, which need the repository to be public or the organization to be upgraded. When it lands, GitHub holds only the organization `CLOUDFLARE_API_TOKEN` and these public values as variables.
 

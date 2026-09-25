@@ -34,6 +34,19 @@ export function cloudConfig(base, environment, env) {
   }
   if (value.WORKOS_CLIENT_ID !== clientIds[environment])
     throw new Error(`WORKOS_CLIENT_ID is not the ${environment} client`);
+  // Resource names carry their environment, so production values cannot name staging resources.
+  for (const key of ["CLOUD_WORKER_NAME", "CLOUD_DATABASE_NAME"])
+    if (!value[key].endsWith(`-${environment}`))
+      throw new Error(`${key} must end with -${environment}`);
+  if (
+    value.CLOUD_HOSTNAME.split(".").some((label) => label.includes("staging")) !==
+    (environment === "staging")
+  )
+    throw new Error(
+      environment === "staging"
+        ? "The staging CLOUD_HOSTNAME must contain staging"
+        : "The production CLOUD_HOSTNAME must not contain staging",
+    );
   const { $schema: _schema, ...config } = structuredClone(base);
   return {
     ...config,
