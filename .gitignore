@@ -1,5 +1,17 @@
 /.origin89/engineering/
+/.origin89/sync.lock
 /.agents/skills/origin89-*
 /.claude/skills/origin89-*
 
 .DS_Store
+node_modules/
+dist/
+*.tgz
+.env
+.env.*
+!.env.*.example
+.dev.vars*
+!.dev.vars.example
+.wrangler/
+wrangler.deploy.json
+worker-configuration.d.ts
