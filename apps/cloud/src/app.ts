@@ -128,7 +128,7 @@ export async function handle(request: Request, services: Services): Promise<Resp
           return failure(
             409,
             "stale_epoch",
-            "A newer epoch of this controller is already linked. Reconnect to the controller and retry.",
+            "A newer epoch of this controller is already linked to this site. Reconnect to the controller and retry.",
           );
       }
       break;

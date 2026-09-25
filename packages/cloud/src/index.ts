@@ -82,7 +82,7 @@ export const errorCodes = [
   "method_not_allowed",
   /** This generation (device and epoch) is already linked to another site. */
   "generation_linked",
-  /** A newer epoch of this device is already linked; the request names a generation from before a factory reset. */
+  /** This site already holds a newer epoch of this device; the request names a generation from before a factory reset. */
   "stale_epoch",
   /** WorkOS could not be reached or refused the request. The message says what, if anything, changed. Retry later. */
   "provider_unavailable",

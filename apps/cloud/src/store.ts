@@ -127,8 +127,9 @@ export class Store {
 
   /**
    * Links one ownership generation to a site the user owns. A generation belongs to one site,
-   * and an epoch older than one already linked for the device is refused: it describes a
-   * controller that has since been reset.
+   * and an epoch older than one this site already holds for the device is refused: it
+   * describes a controller that has since been reset. A newer epoch on another site does not
+   * block the link, because the cloud cannot yet check who holds any generation (cloud#3).
    */
   async linkController(
     user: UserId,
@@ -136,14 +137,15 @@ export class Store {
     link: LinkControllerRequest,
   ): Promise<LinkOutcome> {
     const at = this.now().getTime();
-    // The insert only happens when the caller owns the site and no newer epoch exists, so a
-    // concurrent link can never produce two sites for one generation or a stale generation.
+    // The insert only happens when the caller owns the site and the site holds no newer epoch,
+    // so a concurrent link can never produce two sites for one generation or a stale generation
+    // on one site.
     const inserted = await this.db
       .prepare(
         `INSERT INTO controller_generations (device_id, epoch, site_id, name, linked_by, linked_at)
            SELECT ?1, ?2, ?3, ?4, ?5, ?6
            WHERE EXISTS (SELECT 1 FROM memberships WHERE site_id = ?3 AND user_id = ?5 AND role = 'owner')
-             AND NOT EXISTS (SELECT 1 FROM controller_generations WHERE device_id = ?1 AND epoch > ?2)
+             AND NOT EXISTS (SELECT 1 FROM controller_generations WHERE device_id = ?1 AND site_id = ?3 AND epoch > ?2)
            ON CONFLICT DO NOTHING`,
       )
       .bind(link.deviceId, link.epoch, siteId, link.name, user, at)
