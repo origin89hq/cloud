@@ -2,7 +2,7 @@
   "name": "@origin89/cloud",
   "private": false,
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Origin89 cloud API contract: request and response schemas for accounts, sites and controller links.",
   "license": "UNLICENSED",
   "exports": {
