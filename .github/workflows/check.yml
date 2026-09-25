@@ -34,6 +34,7 @@ jobs:
     needs: node
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    environment: cloud-production
     concurrency:
       group: cloud-production
       cancel-in-progress: false
@@ -64,5 +65,5 @@ jobs:
           WORKOS_API_KEY: ${{ secrets.WORKOS_API_KEY }}
         run: |
           test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Configure the organization CLOUDFLARE_API_TOKEN secret.'; exit 1; }
-          test -n "$WORKOS_API_KEY" || { echo 'Configure the WORKOS_API_KEY repository secret.'; exit 1; }
+          test -n "$WORKOS_API_KEY" || { echo 'Configure the WORKOS_API_KEY secret on the cloud-production environment.'; exit 1; }
           pnpm --filter origin89-cloud deploy:remote production

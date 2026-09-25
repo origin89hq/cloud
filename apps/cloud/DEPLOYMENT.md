@@ -25,7 +25,7 @@ The config refuses the other environment's client ID. Worker and database names 
 
 The `Checks` workflow deploys production on every push to `main` after its checks pass, and on a manual run on `main`. PRs only run checks. It uses the same `deploy:config` and `deploy:remote` scripts as `just deploy production`, and uploads `WORKOS_API_KEY` with each version.
 
-GitHub holds the organization secret `CLOUDFLARE_API_TOKEN` (granted to this repository), the repository secret `WORKOS_API_KEY`, and repository variables `CLOUDFLARE_ACCOUNT_ID`, `CLOUD_WORKER_NAME`, `CLOUD_HOSTNAME`, `CLOUD_DATABASE_NAME`, `CLOUD_DATABASE_ID`, `WORKOS_CLIENT_ID` and `WORKOS_ISSUER`. Without GitHub deployment environments, which this private repository cannot use on the current plan, these secrets are available to workflows on every branch, not only `main`. Move them to a `cloud-production` environment restricted to `main` once environments are available.
+The deploy job runs in the `cloud-production` environment, restricted to `main`. It uses the organization secret `CLOUDFLARE_API_TOKEN`, the environment secret `WORKOS_API_KEY`, and repository variables `CLOUDFLARE_ACCOUNT_ID`, `CLOUD_WORKER_NAME`, `CLOUD_HOSTNAME`, `CLOUD_DATABASE_NAME`, `CLOUD_DATABASE_ID`, `WORKOS_CLIENT_ID` and `WORKOS_ISSUER`. Keep `WORKOS_API_KEY` out of repository-level secrets, where workflows on any branch could read it.
 
 ## Local development
 

@@ -120,6 +120,8 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Publish the prepared package and release notes
         uses: changesets/action/publish@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
-        # npm cannot attach provenance to packages built in a private repository.
+        env:
+          NPM_CONFIG_PROVENANCE: "true"
+          PNPM_CONFIG_PROVENANCE: "true"
         with:
           pack-dir-artifact-id: ${{ needs.pack.outputs.pack-dir-artifact-id }}

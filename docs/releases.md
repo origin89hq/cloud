@@ -8,7 +8,7 @@ Use Changesets for release notes and version bumps. A PR that changes the contra
 
 ## npm and GitHub setup
 
-Configure the npm trusted publisher for organization `origin89hq`, repository `cloud`, workflow `publish-cloud.yml`, with no environment. Only the publish job has OIDC permission; no npm token is stored in GitHub. npm cannot attach provenance to a package built in a private repository, so this workflow publishes without it. Actions must be allowed to create pull requests.
+Configure the npm trusted publisher for organization `origin89hq`, repository `cloud`, workflow `publish-cloud.yml`, with no environment. Only the publish job has OIDC permission; no npm token is stored in GitHub. Packages are published with npm provenance. Actions must be allowed to create pull requests.
 
 Release PRs opened with `GITHUB_TOKEN` need their `Checks` run approved before merging.
 
