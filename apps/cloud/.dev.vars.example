@@ -1,0 +1,8 @@
+# Copy to .dev.vars for `just dev`. Local development uses the staging WorkOS environment.
+WORKOS_CLIENT_ID=client_01M3C9M944Y53VA9PJRCW8T5S6
+# The `iss` of a staging access token, copied from a decoded token.
+WORKOS_ISSUER=
+# The `aud` the staging JWT template adds to access tokens.
+WORKOS_AUDIENCE=
+# The staging API key. Never commit it.
+WORKOS_API_KEY=

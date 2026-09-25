@@ -1,0 +1,30 @@
+name: Checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  node:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-node
+      - name: Validate pending changesets
+        if: hashFiles('.changeset/*.md', '!.changeset/README.md') != ''
+        env:
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          git show-ref --verify --quiet "refs/heads/$BASE_BRANCH" || git branch --no-track "$BASE_BRANCH" "origin/$BASE_BRANCH"
+          pnpm changeset status
+      - run: pnpm check
+      - run: pnpm run package

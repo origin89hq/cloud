@@ -28,14 +28,19 @@ Finish authorized fixes instead of replacing them with backlog issues.
 
 ## Project
 
-This repository will hold the Origin89 cloud service: accounts, sites, controller
-membership, invitations, and later the store of readings pushed by controllers.
-It holds no code yet. The design and owner decisions are in
+This repository holds the Origin89 cloud service: accounts, sites, controller
+membership, and later invitations and the store of readings pushed by controllers.
+The design and owner decisions are in
 [internal-research#1](https://github.com/origin89hq/internal-research/issues/1);
-the protocol work it depends on is
-[km43#128](https://github.com/origin89hq/km43/issues/128) and
-[km43#129](https://github.com/origin89hq/km43/issues/129). Add directories,
-tooling, and CI when the first implementation starts; use `just --list` for commands.
+invitations and readings wait for
+[km43#129](https://github.com/origin89hq/km43/issues/129).
+
+`apps/cloud` is the Cloudflare Worker, with D1 migrations in `apps/cloud/migrations`
+and tests in the Workers runtime through `@cloudflare/vitest-pool-workers`.
+`packages/cloud` is the published `@origin89/cloud` contract; a consumer-visible
+change needs a changeset. Run `just check` before committing and `just package`
+before releasing the contract. Use `just --list` for other commands. Keep
+`compatibility_date` within what the test runtime's workerd supports.
 
 The controller is the only authority over who may operate it. This service
 identifies people and records membership; it never grants controller access.

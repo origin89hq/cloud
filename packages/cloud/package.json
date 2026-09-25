@@ -1,0 +1,41 @@
+{
+  "name": "@origin89/cloud",
+  "private": false,
+  "type": "module",
+  "version": "0.0.0",
+  "description": "Origin89 cloud API contract: request and response schemas for accounts, sites and controller links.",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema.json": "./dist/schema.json"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/json-schema.ts",
+    "test": "node --test test/*.test.ts"
+  },
+  "dependencies": {
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/origin89hq/cloud.git",
+    "directory": "packages/cloud"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      },
+      "./schema.json": "./dist/schema.json"
+    }
+  }
+}

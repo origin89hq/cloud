@@ -1,0 +1,19 @@
+{
+  "name": "origin89-cloud-repository",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.6.0",
+  "scripts": {
+    "check": "pnpm lint && pnpm --filter @origin89/cloud build && pnpm --filter @origin89/cloud test && pnpm --filter origin89-cloud check && pnpm --filter origin89-cloud test && pnpm --filter origin89-cloud dry-run",
+    "lint": "biome ci . --error-on-warnings",
+    "package": "node scripts/package-contract.mjs",
+    "changeset": "changeset",
+    "release:version": "changeset version && pnpm install --lockfile-only --ignore-scripts && pnpm check",
+    "release:publish": "changeset publish"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.14",
+    "@changesets/cli": "3.0.3"
+  },
+  "license": "UNLICENSED"
+}
