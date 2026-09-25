@@ -88,7 +88,7 @@ describe("linking a controller generation", () => {
     expect(sellerSites).toMatchObject({ sites: [{ controllers: [{ deviceId: id, epoch: 1 }] }] });
   });
 
-  it("refuses an epoch older than one already linked", async () => {
+  it("refuses an epoch older than one the site already holds", async () => {
     const svc = services();
     const { bearer, site } = await owner(svc);
     const id = deviceId();
@@ -96,6 +96,41 @@ describe("linking a controller generation", () => {
     const response = await link(svc, bearer, site.id, { deviceId: id, epoch: 4, name: "Barn" });
     expect(response.status).toBe(409);
     expect(await response.json()).toMatchObject({ error: { code: "stale_epoch" } });
+  });
+
+  it("does not let a newer epoch on another site block the owner's link", async () => {
+    const svc = services();
+    const squatter = await owner(svc);
+    const real = await owner(svc);
+    const id = deviceId();
+    const squat = { deviceId: id, epoch: 0xffff_ffff, name: "Mine" };
+    expect((await link(svc, squatter.bearer, squatter.site.id, squat)).status).toBe(201);
+    const response = await link(svc, real.bearer, real.site.id, {
+      deviceId: id,
+      epoch: 1,
+      name: "Barn",
+    });
+    expect(response.status).toBe(201);
+    expect(controllerSchema.parse(await response.json())).toMatchObject({ deviceId: id, epoch: 1 });
+    expect(await count("controller_generations", "device_id = ?", id)).toBe(2);
+    // The squatting site keeps only its own claim.
+    const squatterSites = await (
+      await call(svc, "GET", "/v1/sites", { token: squatter.bearer })
+    ).json();
+    expect(squatterSites).toMatchObject({
+      sites: [{ controllers: [{ deviceId: id, epoch: 0xffff_ffff }] }],
+    });
+  });
+
+  it("refuses an older epoch on a site that holds the newest epoch", async () => {
+    const svc = services();
+    const { bearer, site } = await owner(svc);
+    const id = deviceId();
+    await link(svc, bearer, site.id, { deviceId: id, epoch: 0xffff_ffff, name: "Barn" });
+    const response = await link(svc, bearer, site.id, { deviceId: id, epoch: 1, name: "Barn" });
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({ error: { code: "stale_epoch" } });
+    expect(await count("controller_generations", "device_id = ?", id)).toBe(1);
   });
 
   it("hides sites the caller does not own", async () => {
