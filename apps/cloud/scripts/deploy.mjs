@@ -30,9 +30,10 @@ const wrangler = (args, options = { stdio: "inherit" }) =>
 const output = (args) => JSON.parse(wrangler(args, { encoding: "utf8" }));
 
 // The name and ID come from separate settings; a mismatch would migrate one database and bind
-// another.
+// another. `d1 info` looks the database up by the configured ID, so compare the name the API
+// returns for that ID.
 const info = output(["d1", "info", database.database_name, "--json"]);
-if (info.uuid !== database.database_id)
+if (info.uuid !== database.database_id || info.name !== database.database_name)
   throw new Error(
     `CLOUD_DATABASE_ID does not belong to ${database.database_name}; nothing was deployed.`,
   );
