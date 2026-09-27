@@ -1,6 +1,0 @@
-# Origin89 uses a 3-day Dependabot cooldown to match pnpm's minimumReleaseAge;
-# see origin89hq/engineering docs/dependencies.md.
-rules:
-  dependabot-cooldown:
-    config:
-      days: 3
