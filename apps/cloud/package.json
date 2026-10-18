@@ -13,14 +13,14 @@
   "dependencies": {
     "@origin89/cloud": "workspace:*",
     "jose": "6.2.12",
-    "zod": "4.6.5"
+    "zod": "4.6.6"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "0.22.0",
+    "@cloudflare/vitest-pool-workers": "0.23.0",
     "jsonc-parser": "3.3.1",
     "typescript": "7.0.2",
     "vitest": "4.1.11",
-    "wrangler": "4.140.0"
+    "wrangler": "4.149.0"
   },
   "license": "UNLICENSED"
 }
